@@ -54,23 +54,23 @@ class Workflow():
         #self.google_search_results_links = None
         self.google_search_results_links = []
         self.time_program_ran = self.get_time()
-        print("This program began running at " + self.time_program_ran)
-        
+        print(f"This program began running at {self.time_program_ran}")
+
         #TODO: Change this name... it's all the job info a user has previously applied to!!
         self.csv_data = []
- 
+
         self.env_path = '.env'
         self.env_other_path = '../.env'
         #self.previous_job_data_csv_relative_path = r'../Scraper/JobsThatUserHasAppliedTo.csv'
         self.previous_job_data_csv_relative_path = r'DataOutput/JobsThatUserHasAppliedTo.csv'
         self.users_information = {}
         self.total_jobs_applied_to_count = 0
-        self.total_jobs_applied_to_info = {} 
+        self.total_jobs_applied_to_info = {}
         self.previous_job_applications_data = []
         self.previously_applied_to_job_links = []
         self.last_time_user_applied = None
         self.todays_jobs_applied_to_info = {}
-        
+
         self.senior_jobs_found = {}  #Job_Title, Company_Name, Job_Location, Todays_Date
         self.entry_jobs_found = {}
        
@@ -101,41 +101,13 @@ class Workflow():
         #users_browser_choice, browser_name = 2, " Safari "
         #users_browser_choice, browser_name = 3, " Chrome "
         return users_browser_choice, browser_name
-        print("When you are done, type ONLY the number of your preferred web browser then press ENTER")
-        print(f"\t1) FireFox")
-        print(f"\t2) Safari")
-        print(f"\t3) Chrome")
-        print(f"\t4) Edge")
-        while True:
-            user_jobs = input()
-            user_jobs.strip()
-            
-            if user_jobs == "1":
-                users_browser_choice = " FireFox "
-                break
-            elif user_jobs == "2":
-                users_browser_choice = " Safari "
-                break
-            elif user_jobs == "3":
-                users_browser_choice = " Chrome "
-                break
-            elif user_jobs == "4":
-                users_browser_choice = " Edge "
-                break
-            else:
-                print("That's kinda messed up dog... I give you an opportunity to pick and you pick some dumb crap.")
-                print("You've squandered any further opportunities to decide stuff. I hope you are happy with yourself.")
-                print("Don't worry clown I'll pick for you!")
-                #TODO: Make else just check OS and return number of that OS's web browser!!!
-                #! THIS IS A while loop.... so it runs until false
-        return users_browser_choice, browser_name
     
     #! I have browser setup called 1st and then users_browser_choice b/c if the user uses the same browser over & over this will remember it!!!
     #? ALSO!!!... setting code up this way might lead to very good, safe, and secure code because in no way can an outside person send in any code right from the get go!!! Meaning if they can't use the browser to begin with then the rest of the code is rendered useless...  right?!?!?!?
     def browser_setup(self):
         users_browser_choice, browser_name = self.users_browser_choice()
-        print('Execution Started -- Opening' + browser_name + 'Browser')
-        
+        print(f'Execution Started -- Opening{browser_name}Browser')
+
         if users_browser_choice == 1:
             options = FirefoxOptions()
             options.set_preference("dom.webnotifications.enabled", False)
@@ -143,7 +115,7 @@ class Workflow():
             options.set_preference("browser.toolbars.bookmarks.visibilty", "never")
             options.set_preference("signon.rememberSignons", False)
             options.set_preference("places.history.enabled", False)
-            
+
             self.browser = webdriver.Firefox(options=options)
             self.browser.set_page_load_timeout(30)
         elif users_browser_choice == 2:
@@ -151,7 +123,7 @@ class Workflow():
             options.add_argument("--disable-notifications")
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-infobars")
-            
+
             self.browser = webdriver.Safari(options=options)
             self.browser.set_page_load_timeout(30)
         elif users_browser_choice == 3:
@@ -159,7 +131,7 @@ class Workflow():
             options.add_argument("--disable-notifications")
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-infobars")
-            
+
             self.browser = webdriver.Chrome(options=options)
             self.browser.set_page_load_timeout(30)
         elif users_browser_choice == 4:
@@ -167,10 +139,10 @@ class Workflow():
             options.add_argument("--disable-notifications")
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-infobars")
-            
+
             self.browser = webdriver.Edge(options=options)
             self.browser.set_page_load_timeout(30)
-        
+
         #TODO:   if (browser is open == True && browser is ready == True)
         #assert 'Yahoo' in browser.title
         try:
@@ -303,7 +275,7 @@ class Workflow():
 
     def safe_click(self, element):
         print("safe_click()")
-        
+
         # First, try clicking normally
         print("1) Normal click attempt")
         try:
@@ -331,7 +303,7 @@ class Workflow():
             print(f"4) Scrolling and clicking failed: {e}")
 
         # Next, try checking if the element is displayed before clicking
-        print(f"5.1) Checking visibility and clicking attempt")
+        print("5.1) Checking visibility and clicking attempt")
         try:
             if element.is_displayed():
                 element.click()
@@ -342,7 +314,7 @@ class Workflow():
             print(f"5.3) Checking visibility and clicking failed: {e}")
 
         # Finally, try using JavaScript to perform the click
-        print(f"6) JavaScript click attempt")
+        print("6) JavaScript click attempt")
         try:
             self.browser.execute_script("arguments[0].click();", element)
             return True
@@ -364,19 +336,13 @@ class Workflow():
 
         # Check 2: Is the element displayed?
         try:
-            if element.is_displayed():
-                diagnostics["Displayed"] = "Yes"
-            else:
-                diagnostics["Displayed"] = "No"
+            diagnostics["Displayed"] = "Yes" if element.is_displayed() else "No"
         except Exception as e:
             diagnostics["Displayed"] = f"Error: {e}"
 
         # Check 3: Is the element enabled?
         try:
-            if element.is_enabled():
-                diagnostics["Enabled"] = "Yes"
-            else:
-                diagnostics["Enabled"] = "No"
+            diagnostics["Enabled"] = "Yes" if element.is_enabled() else "No"
         except Exception as e:
             diagnostics["Enabled"] = f"Error: {e}"
 
@@ -403,8 +369,7 @@ class Workflow():
 
         # Check 7: Does the element have any children that could be interfering with the click?
         try:
-            children = element.find_elements(By.XPATH, ".//*")
-            if children:
+            if children := element.find_elements(By.XPATH, ".//*"):
                 diagnostics["Has Children"] = f"Yes, count: {len(children)}"
             else:
                 diagnostics["Has Children"] = "No"
@@ -484,18 +449,18 @@ class Workflow():
     #! Pretty sure this is this is the only time I use JobsThatUserHasAppliedTo.csv so it doesn't matter
     def get_job_links_users_applied_to(self, extract_URLs_from_dictionary):
         print("\nget_job_links_users_applied_to() =")
-        
+
         URLs_list = []
-        
+
         for row in extract_URLs_from_dictionary:
             links_row = row[0]
             print("If my calculations are correct this should print a link MUAH HA HA... ", end="")
             print(links_row)
             URLs_list.append(links_row)
-            
+
         print("These are all the links you already applied to... Tom")
         print(URLs_list)
-        if self.last_time_user_applied == None:
+        if self.last_time_user_applied is None:
             self.last_time_user_applied = extract_URLs_from_dictionary[-1][-1]
             print("And this is when you last applied... Tom")
             print(self.last_time_user_applied)
@@ -507,9 +472,9 @@ class Workflow():
         #! And self.google_search_results_links can stay in the method b/c nothing changes this value!! (b/c if it needed any we already applied it!)
     def filter_out_jobs_user_previously_applied_to(self, list_to_filter, previously_applied_links):
         print("\nfilter_out_jobs_user_previously_applied_to()")
-        
+
         Lake_Minnetonka_Purified_list = []
-        
+
         for list_URL in list_to_filter:
             found = False
             for previously_applied_URL in previously_applied_links:
@@ -523,10 +488,13 @@ class Workflow():
                     break
             if not found:
                 Lake_Minnetonka_Purified_list.append(list_URL)
-        
+
         print("These are all the links you already applied to... ")
         print(previously_applied_links)
-        print("Swedish semen... yummy " + str(len(Lake_Minnetonka_Purified_list)) + " timber logs.\n")
+        print(
+            f"Swedish semen... yummy {len(Lake_Minnetonka_Purified_list)}"
+            + " timber logs.\n"
+        )
         #print(Lake_Minnetonka_Purified_list)
         return Lake_Minnetonka_Purified_list
     
