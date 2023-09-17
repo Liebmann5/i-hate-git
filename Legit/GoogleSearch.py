@@ -64,7 +64,7 @@ class scraperGoogle():
 
     def search_for_jobs(self):     #! (self, self.browser) -> self.browser as parameter is dumb b/c arguments are meant to accept values from other places and self.browser's value was set in the constructor so... piece the crap together Nick
         job_titles = self.user_desired_jobs  #TODO: < Ummmm does that work
-        
+
         print('Searching for ' + ", ".join(job_titles) + ' jobs...    you lazy son of 21 guns')
         search_bar = self.browser.find_element(By.NAME, "q")
         search_bar.clear()
@@ -74,9 +74,9 @@ class scraperGoogle():
         job_titles_string = ' ("'
         for i, job in enumerate(job_titles):
             if i == len(job_titles)-1 or len(job_titles) == 0:
-                job_titles_string += (job + '")')
+                job_titles_string += f'{job}")'
             else:
-                job_titles_string += (job + '" | "')
+                job_titles_string += f'{job}" | "'
         search_bar.send_keys(job_titles_string)
         print('2/2')
         print("Searching google for...       adult films?")
@@ -92,17 +92,17 @@ class scraperGoogle():
         if not self.good_locations and not self.bad_locations:
             self.filter_search_time_frame(search_bar)
             return 
-        
+
         #NOTE: HERE add SPACE to the BEGININNG because we don't care about the end!!!
         search_location = " & "
         for count, add_location in enumerate(self.good_locations):
             if count == len(self.good_locations):
-                search_location += (" near=" + add_location + " ")
-                #! ADD: Find out how to add more location!!!!!                
+                search_location += f" near={add_location} "
+                        #! ADD: Find out how to add more location!!!!!                
         for count, exclude_location in self.bad_locations:
             if count == len(self.bad_locations):
-                search_location += ("!(near=" + exclude_location + ")")
-        
+                search_location += f"!(near={exclude_location})"
+
         search_bar.send_keys(search_location)
         self.filter_search_time_frame(self, search_bar)
         return
@@ -114,14 +114,14 @@ class scraperGoogle():
         self.adjust_viewport()
         print("GET SUCKED WIZARD!")
         time.sleep(1)
-        
+
         tools_butt = self.browser.find_element(By.XPATH, "//div[text()='Tools']")
         tools_butt.click()
-        
+
         any_time_butt = self.browser.find_element(By.XPATH, "//div[text()='Any time']")
         any_time_butt.click()
         decisi = "24"
-        
+
         if decisi == "24":
             past_24 = self.browser.find_element(By.XPATH, "//a[text()='Past 24 hours']")
             past_24.click()
@@ -130,7 +130,7 @@ class scraperGoogle():
             past_week.click()
         else:
             raise TypeError('ERROR: Didnt pick a registered time!')
-        print("Filtering by past " + decisi)
+        print(f"Filtering by past {decisi}")
         time.sleep(1)
         #self.search_results(self.list_first_index, self.list_last_index)
         #self.job_search_workflow()
@@ -155,8 +155,8 @@ class scraperGoogle():
         print('\n\n\n')
         print("increment_search_results")
         print("****************************************************************")
-        print("Current Height == " + str(prev_height))
-        
+        print(f"Current Height == {str(prev_height)}")
+
         #! This is what does the actual scrolling!!!
         self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         #------------------------------------------------------------------------------------------------------
@@ -169,9 +169,9 @@ class scraperGoogle():
         #         time.sleep(1)
         time.sleep(1)
         print("Scrolled...")
-        
+
         new_height = self.browser.execute_script("return document.body.scrollHeight")
-        print("New Height == " + str(new_height))
+        print(f"New Height == {str(new_height)}")
         return new_height != prev_height
 
     def process_search_results(self):
@@ -200,7 +200,7 @@ class scraperGoogle():
         #         EC.visibility_of(last_result)
         #     )
         initial_length = len(self.results_from_search)
-        
+
         if list_first_index == 0:
             self.results_from_search = self.browser.find_elements(By.CSS_SELECTOR, f"div.g:nth-child(n+{list_first_index})")
             list_last_index = len(self.results_from_search)
@@ -211,32 +211,35 @@ class scraperGoogle():
 
         for count, results_link in enumerate(self.results_from_search[initial_length:], initial_length):
             print('--------------------------------')
-            print(str(count+1) + "/" + str(list_last_index))
+            print(f"{str(count + 1)}/{str(list_last_index)}")
             print(results_link)
             link = results_link.find_element(By.CSS_SELECTOR, "a")  #"h3.LC201b > a"
             print(f"Here is link #{count+1}: ", end="")
             job_link = link.get_attribute("href")
             print(job_link)
             self.google_search_results_links.append(job_link)
-            
+
             if (count+1) == list_last_index:
                 self.last_link_from_google_search = results_link
                 print("\nvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
                 print(self.last_link_from_google_search)
                 print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
-            
+
             #TODO: I have no effing idea what the heck this is supposed to do or it's purpose... I'm dumb
             if count == list_last_index:
                 list_first_index = list_last_index
                 break
         print("\nI am at end of search_results()...")
-        print("First Index = " + str(list_first_index) + " && Last Index = " + str(list_last_index))
+        print(
+            f"First Index = {str(list_first_index)} && Last Index = {str(list_last_index)}"
+        )
         return list_last_index
 
     def get_more_results(self):
         try:
-            more_results = self.browser.find_element(By.XPATH, "//span[text()='More results']")
-            if more_results:
+            if more_results := self.browser.find_element(
+                By.XPATH, "//span[text()='More results']"
+            ):
                 print("Found the more_results button")
                 more_results.click()
                 print("Clicked 'More results' button")
@@ -251,15 +254,17 @@ class scraperGoogle():
             return False
 
     def end_of_search(self):
-            try:
-                no_more_results = self.browser.find_element(By.XPATH, "//a[text()='repeat the search with the omitted results included']")
-                if no_more_results:
-                    print("No more search results")
-                    time.sleep(2)
-                    return True
-            except NoSuchElementException:
-                pass
-            return False 
+        try:
+            if no_more_results := self.browser.find_element(
+                By.XPATH,
+                "//a[text()='repeat the search with the omitted results included']",
+            ):
+                print("No more search results")
+                time.sleep(2)
+                return True
+        except NoSuchElementException:
+            pass
+        return False 
     
     
     
@@ -269,7 +274,7 @@ class scraperGoogle():
         print("Results from this Google Search: ")
         for i, job in enumerate(self.results_from_search):
             self.job_links_counter += 1
-            print("Result #" + str(self.job_links_counter) + " from Google Seaech")
+            print(f"Result #{self.job_links_counter} from Google Seaech")
             print("\tJob Title: ", end="")
             print(job)
             print("\tLink to Job: ", end="")
@@ -283,7 +288,7 @@ class scraperGoogle():
         print("Results from this Google Search: ")
         for i, job in enumerate(self.results_from_search):
             self.job_links_counter += 1
-            print("Result #" + str(i+1) + " from Google Seaech")
+            print(f"Result #{str(i + 1)} from Google Seaech")
             print("\tJob Title: ", end="")
             print(job)
             print("\tLink to Job: ", end="")
@@ -297,7 +302,7 @@ class scraperGoogle():
         print("Results from this Google Search: ")
         for i, job in enumerate(self.google_search_results_links):
             self.job_links_counter += 1
-            print("Result #" + str(i+1) + " from Google Seaech")
+            print(f"Result #{str(i + 1)} from Google Seaech")
             print("\tJob Title: ", end="")
             print(job)
             print("\tLink to Job: ", end="")

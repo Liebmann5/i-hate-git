@@ -189,8 +189,8 @@ class CompanyWorkflow():
                     #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                     self.form_input_details = self.get_form_input_details(current_url)
                     self.process_form_inputs(form_input_details)
-                    
-                    
+
+
                     #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 #     try:
                 #         self.company_open_positions_a.click()
@@ -216,15 +216,15 @@ class CompanyWorkflow():
                     self.insert_resume()
                     #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                     self.process_form_inputs(form_input_details)
-                    
-                    
+
+
                     #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                     #self.fill_out_application(job_link, form_input_details)
                     self.keep_jobs_applied_to_info()
                 elif not apply_to_job:
                     #TODO:
                     self.company_other_openings_href.click()
-                    
+
                 #TODO: If the button is present click OTHERWISE just insert the link
                 if self.company_other_openings_href:
                     self.company_other_openings_href.click()
@@ -233,23 +233,23 @@ class CompanyWorkflow():
 
             elif opening_link_company_jobs:
                 print('-Job Listings Page')
-                pass
             return
-        
-            
+
+
         elif application_company_name == "greenhouse":
             div_main = soup.find("div", id="main")
             job_description_element = self.browser.find_element(By.ID, "content")
-            
+
             #I did it this way because it checks very few elements since 1 of these options are normally literally the next element
             next_elem = div_main.find_next()
             while next_elem:    #NOTE: REMEBER THIS DOESN'T INCREMENT next_elem SO IT'S THE SAME VALUE AS ABOVE!!!!
-                if next_elem.name == "div" and (next_elem.get("id") == "flash-wrapper" or next_elem.get("id") == "flash_wrapper"):
+                if next_elem.name == "div" and next_elem.get("id") in [
+                    "flash-wrapper",
+                    "flash_wrapper",
+                ]:
                     print('-Job Listings Page')
-                    pass
                 elif (next_elem.name == "div" and next_elem.get("id") == "embedded_job_board_wrapper"):
                     print('-Job Listings Page')
-                    pass
                 elif (next_elem.name == "section" and next_elem.get("class") == "level-0"):
                     print("-Company Job Openings Page")
                     print("A while loop for this is perfect for this because there can be multiple <section class='level-0'>")
@@ -259,7 +259,7 @@ class CompanyWorkflow():
                     app_body = next_elem
                     header = next_elem.find("div", id="header")
                     content = next_elem.find("div", id="content")
-                    
+
                     if header and content:
                         print("-Job Description Page")
                         #TODO: Fix this!!! I need the header link!
@@ -278,26 +278,23 @@ class CompanyWorkflow():
                             time.sleep(8)
                             #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                             self.process_form_inputs(form_input_details)
-                    
-                            
+
+
                             #!xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                             print("out back naked little Timmy....")
                             #self.fill_out_application(job_link, form_input_details)
                             self.keep_jobs_applied_to_info(job_link)
-                        elif should_apply == False:
-                            pass 
-                        else:
+                        elif should_apply != False:
                             print("\tHmmm that's weird ? it's neither button nor application")
-                        
-                        
+
+
                         try:
                             self.company_other_openings_href.click()
                         except:
                             self.browser.get(self.company_other_openings_href)
-                            
-                            
+
+
                         time.sleep(4)
-                        pass
                     break
                 else:
                     next_elem = next_elem.find_next()
@@ -364,18 +361,18 @@ class CompanyWorkflow():
     #These set of methods are a bit different because... although they do filter; their purpose is for my Google Sheets Data!!
     def users_basic_requirements(self):
         basic_requirements_met = True
-        while basic_requirements_met == True:
+        while basic_requirements_met:
             #? READ IT LIKE THIS: naturally if True => run the inside | if not True <-(!so say with expected answer!) sssoooooo...
             #? to run the inside we need {something that's} "not True" LITERALLY which is False which is needed to => run the inside
             if not self.users_basic_requirements_job_title():
                 basic_requirements_met = False
             if not self.users_basic_requirements_job_location():
                 basic_requirements_met = False
-            if basic_requirements_met == True:
+            if basic_requirements_met:
                 break
-        if basic_requirements_met == False:
+        if not basic_requirements_met:
             self.found_senior_job_insert()
-        elif basic_requirements_met == True:
+        else:
             self.found_entry_job_insert()
         return
         
@@ -600,17 +597,17 @@ class CompanyWorkflow():
         #greenhouse.io == <div id="main">   =>   lever.co == ??? [?postings-wrapper?] -> maybe 'filter-bar'
         #greenhouse.io == <section class="level-0">   =>   lever.co == <div class="postings-group">
         #greenhouse.io == <section class="level-1">   =>   lever.co == <div class="posting">
-        print("Application Company = " + application_company_name)
-        
-        
+        print(f"Application Company = {application_company_name}")
+            
+
         if application_company_name == 'lever':
             #just getting a better(more narrowed result) filter
             postings_wrapper = soup.find('div', class_="postings-wrapper")
             current_url = self.browser.current_url
             perfect_url = self.try_adjusting_job_link(current_url)
             postings_group_apply = postings_wrapper.find_all('div', class_=lambda x: x and ('postings-group' in x or 'posting-apply' in x))
-            
-            
+
+
             #department_name_empty = True
             for section in postings_group_apply:
                 print(section)
@@ -619,12 +616,12 @@ class CompanyWorkflow():
                 if company_department:
                     print(company_department)
                     #department_name_empty = False
-                
+
                 # if section.name == 'h3':
                 #     company_department = section.text
                 # if section.name == 'h4':
                 #     print('This is most likely just a SUB-category so not really important otber than making sure we go through EVERY job it contains!')
-                    
+
                 #job_opening = section.find('div', {'class': 'opening'})
                 if section.name == 'div' and section.get('class') == 'posting-apply':
                     job_opening_href = section.next_sibling
@@ -648,7 +645,7 @@ class CompanyWorkflow():
                     self.company_open_positions_url.append(job_link)
             self.print_company_job_openings("company_job_openings", application_company_name, JobTitle=job_title, JobLocation=job_opening_location, WorkPlaceTypes=span_tag_workplaceTypes, CompanyDepartment=company_department, JobTeamInCompany=span_tag_company_team, JobHREF=job_link, ButtonToJob=button_to_job_description)
             return
-        
+
         elif application_company_name == 'greenhouse':
             current_url = self.browser.current_url
             perfect_url = self.try_adjusting_job_link(current_url)
@@ -663,11 +660,9 @@ class CompanyWorkflow():
                     print(company_department)
                 if section.name == 'h4':
                     print('This is most likely just a SUB-category so not really important other than making sure we go through EVERY job it contains!')
-                    
-                job_opening = section.find('div', {'class': 'opening'})
-                if job_opening:
-                    job_opening_href = job_opening.find('a')
-                    if job_opening_href:
+
+                if job_opening := section.find('div', {'class': 'opening'}):
+                    if job_opening_href := job_opening.find('a'):
                         job_title = job_opening_href.text
                         print(job_title)
                         for bad_word in self.avoid_these_job_titles:
@@ -675,33 +670,28 @@ class CompanyWorkflow():
                                 job_href = job_opening_href.get('href')
                                 job_url = perfect_url + job_href
                                 self.company_open_positions_url.append(job_url)
-                        span_tag = job_opening.find('span', {'class', 'location'})
-                        if span_tag:
+                        if span_tag := job_opening.find(
+                            'span', {'class', 'location'}
+                        ):
                             job_opening_location = span_tag.text
                             print(job_opening_location)
-                        #job_opening_href.click()
                 if count == 20:
                     break
                 print("-------")
             self.print_company_job_openings("company_job_openings", application_company_name, JobTitle=job_title, JobLocation=job_opening_location, ButtonToJob=job_href)
         return
     
-    def print_company_job_openings(*args, **kwargs):
+    def print_company_job_openings(self, **kwargs):
         print('\n\n\n')
         print('----------------------------------------------------------------------------------------------------')
         print("print_company_job_openings()")
         method_name = None
-        for arg in args:
-            if arg == 'greenhouse':
+        for arg in self:
+            if arg in ['greenhouse', 'lever']:
                 print(method_name)
                 print(arg)
                 for key, value in kwargs.items():
-                    print(key + ": " + str(value))
-            elif arg == 'lever':
-                print(method_name)
-                print(arg)
-                for key, value in kwargs.items():
-                    print(key + ": " + str(value))
+                    print(f"{key}: {str(value)}")
             else:
                 method_name = arg
         print('----------------------------------------------------------------------------------------------------')
@@ -712,19 +702,20 @@ class CompanyWorkflow():
     
     #The purpose of this method is pretty much only finding and retrieving the companies other open positions url!!!
     def lever_co_header(self, webpage_body):
-        links_in_header = []
         print("\nThese are the links/elements that lead to this companies other available Job Openings:")
         current_url = self.browser.current_url
-        print("Current URL: " + current_url)
-        links_in_header.append(current_url)
+        print(f"Current URL: {current_url}")
+        links_in_header = [current_url]
         webpage_header = webpage_body.find('div', {"class": 'main-header-content'})
         self.company_open_positions_a = webpage_header.find('a', {"class": "main-header-logo"})
-        print("Selenium Click => Companies other Job Openings: " + self.company_open_positions_a)
+        print(
+            f"Selenium Click => Companies other Job Openings: {self.company_open_positions_a}"
+        )
         #links_in_header.append(self.company_open_positions_a)
         try:
             if self.company_open_positions_a['href']:
                 company_open_positions_href = self.company_open_positions_a['href']
-                print("Webpage's Header link: " + company_open_positions_href)
+                print(f"Webpage's Header link: {company_open_positions_href}")
                 company_open_positions_url = company_open_positions_href
                 links_in_header.append(company_open_positions_url)
         except:
@@ -745,9 +736,6 @@ class CompanyWorkflow():
             if first_child:                 #! if child == '\n'     CHECK ||||||||||
                 first_child = False
                 continue
-            elif child == string_tab:
-                #? continue
-                pass
             if child.name == "h1" and "app-title" in child.get("class"):
                 self.company_job_title = child.get_text().strip()
             elif child.name == "span" and  "company-name" in child.get("class"):
@@ -771,27 +759,27 @@ class CompanyWorkflow():
                         self.company_other_openings_href = head_a_tag
                     elif '#' in head_a_tag['href']:
                         self.a_fragment_identifier = head_a_tag
-                    elif head_a_tag == None:
+                    elif head_a_tag is None:
                         logo_container = app_body.find('div', class_="logo-container")
                         company_openings_a = logo_container.find('a')
                         self.company_other_openings_href = company_openings_a['href']
                         searched_all_a = True
-                #all_jobs_available_a_href = child['href']  #! ^ ^ ^ ^ ^ ^ ^ ^ ^
-                #print("all_jobs_available_a_href 1 = ")
-                #print(all_jobs_available_a_href)
-                #! If it opens on job_description see the bottom is 'apply_button' or 'job_application'
-                # print("all_jobs_available_a_href 2 = ")
-                # all_jobs_available_a_href = child.decode_contents()
-                #print(all_jobs_available_a_href)
-                #!since child is the <a> remember to click it!!!
-                #companies_jobs_link_a = child
+                        #all_jobs_available_a_href = child['href']  #! ^ ^ ^ ^ ^ ^ ^ ^ ^
+                        #print("all_jobs_available_a_href 1 = ")
+                        #print(all_jobs_available_a_href)
+                        #! If it opens on job_description see the bottom is 'apply_button' or 'job_application'
+                        # print("all_jobs_available_a_href 2 = ")
+                        # all_jobs_available_a_href = child.decode_contents()
+                        #print(all_jobs_available_a_href)
+                        #!since child is the <a> remember to click it!!!
+                        #companies_jobs_link_a = child
             elif child.name == "div" and "location" in child.get("class"):
                 self.company_job_location = child.get_text().strip()
-            #? else:
-            #?     print("child = ")
-            #?     print(child)
-            #self.company_openings_test_link = 
-        if self.company_other_openings_href == None:
+                #? else:
+                #?     print("child = ")
+                #?     print(child)
+                #self.company_openings_test_link = 
+        if self.company_other_openings_href is None:
             self.print_company_job_openings("greenhouse_io_header()", "greenhouse", JobTitle=self.company_job_title, CompayName=self.company_name, JobLocation=self.company_job_location, JobHREF="Couldnt Find", LinkToApplication_OnPageID=self.a_fragment_identifier)
         else:
             self.print_company_job_openings("greenhouse_io_header()", "greenhouse", JobTitle=self.company_job_title, CompayName=self.company_name, JobLocation=self.company_job_location, JobHREF=self.company_other_openings_href, LinkToApplication_OnPageID=self.a_fragment_identifier)
@@ -836,15 +824,15 @@ class CompanyWorkflow():
         first_link = True
         list_of_other_jobs_keyword
         for header_link in links_in_header:
-            if first_link == True and "lever" == self.application_company_name:
+            if first_link == True and self.application_company_name == "lever":
                 self.try_adjusting_job_link(header_link)
                 list_of_other_jobs_keyword = 'list-page'
                 first_link = False
             elif first_link == True and "greenhouse" in self.application_company_name:
-                
+
                 list_of_other_jobs_keywords = ''
                 first_link == False
-            self.browser.execute_script("window.open('{}', '_blank');".format(header_link))
+            self.browser.execute_script(f"window.open('{header_link}', '_blank');")
             for handle in self.browser.window_handles:
                 self.browser.switch_to.window(handle)
                 if list_of_other_jobs_keyword in self.browser.page_source:
@@ -856,7 +844,7 @@ class CompanyWorkflow():
         time.sleep(2)
         print("You probably suck too though, don't think you dont't :)")
         time.sleep(1)
-        if (self.company_open_positions_link == None):
+        if self.company_open_positions_link is None:
             self.company_open_positions_a.click()
             time.sleep(5)
     
@@ -894,22 +882,22 @@ class CompanyWorkflow():
     
     
     
-    def is_absolute_path(href):
+    def is_absolute_path(self):
         print("is_absolute_path()")
-        parsed_url = urlparse(href)
+        parsed_url = urlparse(self)
         print("The href value is: ", end="")
         print(parsed_url)
         return bool(parsed_url.netloc)
 
     #! HERE HERE HERE HERE HERE HERE HERE HERE HERE HERE
-    def fits_users_criteria(test_elements_uniqueness, *args):
+    def fits_users_criteria(self, *args):
         ultimate_lists_checker = []
         for arg in args:
             ultimate_lists_checker.extend(arg)                      #WORKS for job_title && links
-        for unacceptable_element in ultimate_lists_checker:
-            if unacceptable_element in test_elements_uniqueness:
-                return False
-        return True
+        return all(
+            unacceptable_element not in self
+            for unacceptable_element in ultimate_lists_checker
+        )
 
     def get_input_tag_elements(self):
         """
@@ -1018,11 +1006,9 @@ class CompanyWorkflow():
             if next_elem.name == "div" and next_elem.get("id") == "flash-wrapper":
                 print('-Job Page')
                 return soup.find("div", id="flash-wrapper")
-                break
             elif (next_elem.name == "div" and next_elem.get("id") == "embedded_job_board_wrapper"):
                 print('-Job Listings Page')
                 return soup.find("div", id="embedded_job_board_wrapper")
-                break
             elif (next_elem.name == "section" and next_elem.get("class") == "level-0"):
                 print("-Job Listings Page")
                 print("A while loop for this is perfect for this because there can be multiple <section class='level-0'>")
@@ -1058,11 +1044,13 @@ class CompanyWorkflow():
     def attach_resum(self, application):
         resume_element = application.find_element(By.XPATH, "//*[@id[contains(@id, 'resume')]]")
         resume_path = "get from .env file"
-        
+
         #How does the form want us to upload our resume? Button click...
         while True:
-            upload_by_button = application.find_element(By.TAG_NAME, "//fieldset[@aria-describedby='resume-allowable-file-types']")
-            if upload_by_button:
+            if upload_by_button := application.find_element(
+                By.TAG_NAME,
+                "//fieldset[@aria-describedby='resume-allowable-file-types']",
+            ):
                 ActionChains(self.browser).move_to_element(upload_by_button).click().perform()
                 upload_by_button.send_keys(resume_path)
                 break
@@ -1152,11 +1140,9 @@ class CompanyWorkflow():
         input_element_str = str(input_element).lower()
         if 'button' in input_element_str and 'submit application' in input_element_str:
             return 'Submit Application'
-        
+
         if input_element.get('type') == 'radio':
-            label = self.find_radio_label(input_element)
-            return label
-        
+            return self.find_radio_label(input_element)
         if input_element.get('type') == 'checkbox':
             div_parent, parents_text = self.get_div_parent(input_element)
             if div_parent == 'None' or parents_text == 'None':
@@ -1171,30 +1157,26 @@ class CompanyWorkflow():
 
         # Case 2: Check if the label is inside a parent container
         if not label:
-            parent = input_element.find_parent()
-            if parent:
+            if parent := input_element.find_parent():
                 label = parent.find('label')
 
         # Case 3: Check if the label is associated using the "for" attribute
         if not label:
-            input_id = input_element.get('id')
-            if input_id:
+            if input_id := input_element.get('id'):
                 label = input_element.find_previous('label', attrs={'for': input_id})
 
         # Case 4: Check if the input element is a child of a label element
         if not label:
-            parent_label = input_element.find_parent('label')
-            if parent_label:
+            if parent_label := input_element.find_parent('label'):
                 label = parent_label
 
         # Case 5: Check if a label is inside a parent container of the input element
         if not label:
-            parent = input_element.find_parent()
-            if parent:
+            if parent := input_element.find_parent():
                 label = parent.find('label')
-                
+
         # Case 6: Checks if the input element has an 'aria-label' meaning it's dynamic so goes & searches
-        # all previous label containers to see if any have text values that are equal to the aria-label' 
+        # all previous label containers to see if any have text values that are equal to the aria-label'
         if not label:
             if 'aria-label' in input_element.attrs:
                 aria_label_match = None
@@ -1203,23 +1185,28 @@ class CompanyWorkflow():
                 if parent_label.text.strip() == aria_label_value:
                     aria_label_match = True
                 if aria_label_match:
-                    dynamic_label = aria_label_value + " (dynamic " + input_element.get('type') + ")"
-                    if dynamic_label:
+                    if (
+                        dynamic_label := f"{aria_label_value} (dynamic "
+                        + input_element.get('type')
+                        + ")"
+                    ):
                         return dynamic_label
-                elif aria_label_match == None:
+                elif aria_label_match is None:
                     return aria_label_value
-                        
+
         # Case 7: Checks if the input element's style attribute is equal to 'display: none;' meaning it's
         # dynamic so goes & searches for the most previous label container to specify its text value is dynamic
         if not label:
             if input_element.get('style') == 'display: none;':
-                previous_input = input_element.find_previous('input')
-                if previous_input:
+                if previous_input := input_element.find_previous('input'):
                     parent_label = previous_input.find_previous('label')
-                    dynamic_label = parent_label.text.strip() + " (dynamic " + input_element.get('type') + ")"
-                    if dynamic_label:
+                    if (
+                        dynamic_label := f"{parent_label.text.strip()} (dynamic "
+                        + input_element.get('type')
+                        + ")"
+                    ):
                         return dynamic_label
-                    
+
         # Case 8: Special case for Resume/CV
         if not label and self.one_resume_label == False:
             found_attach = False
@@ -1236,8 +1223,7 @@ class CompanyWorkflow():
                 current_element = current_element.next_sibling
             # Traverse up from the specific_element and find the label tag
             if found_attach:
-                label_tag = input_element.find_previous('label')
-                if label_tag:
+                if label_tag := input_element.find_previous('label'):
                     # Check if the immediate child is a text value
                     first_child = label_tag.contents[0]
                     if isinstance(first_child, NavigableString) and first_child.strip():
@@ -1257,8 +1243,10 @@ class CompanyWorkflow():
 
         # Check if the label contains a nested div element with the class "application-label" (case for Input 18)
         if label:
-            app_label = label.find(lambda tag: 'class' in tag.attrs and 'application-label' in tag['class'])
-            if app_label:
+            if app_label := label.find(
+                lambda tag: 'class' in tag.attrs
+                and 'application-label' in tag['class']
+            ):
                 label = app_label
 
         if label:
@@ -1275,9 +1263,7 @@ class CompanyWorkflow():
 
             return label_text
 
-        # Case 6: Check if the input_element has a placeholder attribute
-        placeholder = input_element.get('placeholder')
-        if placeholder:
+        if placeholder := input_element.get('placeholder'):
             return f"Placeholder ~ {placeholder}"
 
         return None
@@ -1287,13 +1273,12 @@ class CompanyWorkflow():
         current_level = 0
         while (current_level <= stop_level):
             print(f"Level {current_level}:")
-            if current_level == 0 or current_level == 5:
-                if current_level == 0:
-                    print(element.prettify())
-                if current_level == 5:
-                    sauce = element.next_element.get_text(strip=True)
-                    print(sauce)
-                    return sauce
+            if current_level == 0:
+                print(element.prettify())
+            elif current_level == 5:
+                sauce = element.next_element.get_text(strip=True)
+                print(sauce)
+                return sauce
             element = element.parent
             current_level += 1
 
@@ -1329,9 +1314,9 @@ class CompanyWorkflow():
     def get_form_input_details(self, url):
         #TODO: GET RID OF THIS AS SOON AS POSSIBLE!!!!
         self.one_resume_label = False
-        
+
         print("\nget_form_input_details()")
-        print("URL = " + url)
+        print(f"URL = {url}")
         page = requests.get(url)
         soup = BeautifulSoup(page.content, 'lxml')
 
@@ -1364,9 +1349,7 @@ class CompanyWorkflow():
             values = []
             if input_type == 'select':
                 options = field.find_all('option')
-                for option in options:
-                    values.append(option.text.strip())
-
+                values.extend(option.text.strip() for option in options)
             if input_type == 'radio':
                 #print("Radio button in get_form_input_details:", field)  # Debugging line
                 radio_name = field.get('name')
@@ -1376,14 +1359,14 @@ class CompanyWorkflow():
                 radio_group = soup.find_all('input', {'name': radio_name})
                 values = [radio.get('value') for radio in radio_group]
                 input_html = ''.join([str(radio).strip() for radio in radio_group])
-                
+
                 # Call get_label for the entire radio button group
                 input_label = self.get_label(field)
-                
+
             elif input_type == 'checkbox':
                 if field in processed_radios:
                     continue
-                
+
                 #! values - different -> sometimes value attr or in search next element for text_value!!
                 div_parent, parents_text = self.get_label(field)
                 values = []
@@ -1393,7 +1376,7 @@ class CompanyWorkflow():
                 for index, input_element in enumerate(checkbox_group):
                     parent_label = input_element.find_previous('label')
                     if input_element.get('type') == 'text':
-                        values.append(parent_label.text.strip() + "(dynamic)")
+                        values.append(f"{parent_label.text.strip()}(dynamic)")
                         continue
                     values.append(parent_label.text.strip())
                     processed_radios.add(input_element)
@@ -1441,34 +1424,21 @@ class CompanyWorkflow():
     def print_form_details(self, form_inputs):
         print('\n\n\n')
         jam = "10"
-            
-        if jam == "1":
-            print('--------------------------------------------')
-            print("Form Input Details: ", end="")
-            for i, detail in enumerate(form_inputs, start=1):
-                print(f"Input {i}:")
-                print(f"  Label: {detail['label']}")
-                print(f"  Type: {detail['type']}")
-                print(f"  Values: {detail['values']}")
-                print(f"  Is Hidden: {detail['is_hidden']}")
-                print(f"  HTML: {detail['html']}")
-            print('--------------------------------------------')
-            print("\n")
-            
-        else:
-            print('--------------------------------------------')
-            print("Form Input Details: ", end="")
-            for i, detail in enumerate(form_inputs, start=1):
-                print(f"Input {i}:")
-                print(f"  Label: {detail['label']}")
-                print(f"  Type: {detail['type']}")
-                print(f"  Values: {detail['values']}")
-                print(f"  Is Hidden: {detail['is_hidden']}")
-                print(f"  HTML: {detail['html']}")
+
+        print('--------------------------------------------')
+        print("Form Input Details: ", end="")
+        for i, detail in enumerate(form_inputs, start=1):
+            print(f"Input {i}:")
+            print(f"  Label: {detail['label']}")
+            print(f"  Type: {detail['type']}")
+            print(f"  Values: {detail['values']}")
+            print(f"  Is Hidden: {detail['is_hidden']}")
+            print(f"  HTML: {detail['html']}")
+            if jam != "1":
                 print(f"  Dynamic: {detail['dynamic']}")
                 print(f"  Related Elements: {detail['related_elements']}")
-            print('--------------------------------------------')
-            print("\n")        
+        print('--------------------------------------------')
+        print("\n")        
         
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #!                                                                               !
@@ -1647,7 +1617,7 @@ class CompanyWorkflow():
                 time.sleep(20)
             except Exception as e:
                 print(f"An error occurred while processing URL {i+1}: {url}")
-                print(str(e))
+                print(e)
             finally:
                 print(f"Finished processing URL {i+1}")
                 
@@ -1660,10 +1630,10 @@ class CompanyWorkflow():
             try:
                 print(f"Processing URL {i+1}...")
                 self.browser.get(url)  # assuming self.browser is an instance of a webdriver
-                
-                
-                
-                
+
+
+
+
                 time.sleep(5)
                 self.scroll_to_element("form")
 
@@ -1676,7 +1646,7 @@ class CompanyWorkflow():
 
             except Exception as e:
                 print(f"An error occurred while processing URL {i+1}: {url}")
-                print(str(e))
+                print(e)
 
             finally:
                 print(f"Finished processing URL {i+1}")
@@ -1696,10 +1666,9 @@ class CompanyWorkflow():
             # Extract label from the input_data
             label = input_data['label']
 
-            # Handle custom rules or get matching key if present
-            key = self.get_matching_key_if_present(label, special_expected_user_input)
-
-            if key:
+            if key := self.get_matching_key_if_present(
+                label, special_expected_user_input
+            ):
                 # Get value from the users_information dictionary
                 value = self.users_information[key]
 
@@ -1708,12 +1677,9 @@ class CompanyWorkflow():
                     for v in value:
                         self.browser.find_element(label).send_keys(v)
                         # Add additional logic here to handle multiple choice selections
-                elif special_expected_user_input == 'is_file':
+                else:
                     # handle file upload
                     self.browser.find_element(label).send_keys(value)  # assuming value is file path
-                else:
-                    # Fill in the form
-                    self.browser.find_element(label).send_keys(value)
             else:
                 print(f"No matching key found for label {label}")
     
@@ -1747,30 +1713,29 @@ class CompanyWorkflow():
         for input_data in form_input_details:
             if input_data['is_hidden']:
                 continue
-            
+
             if ['dynamic', None] in input_data['label']:
                 continue
-            
+
             if 'Submit Application' in input_data['label']:
                 print("Submit Application")
                 print("input_data: ", input_data)
                 submit_button = input_data
                 print("submit_button: ", submit_button)
-            
+
             self.scroll_to_question(input_data)
             print("  Scrolled here I guess...")
-            
+
             label = input_data['label']
             print("unprocessed label: ", label)
             label = self.process_text(label)
             print("processed label: ", label)
             input_type = input_data['type']
             predefined_options = input_data.get('values', None)
-            
+
             # If the input type in select, radio, or checkbox, handle it as a !special case!
             if input_type in ['select', 'radio', 'checkbox']:
-                matching_keys = self.get_matching_keys(label)               #! .get_matching_keys() does all the comaparing to get the right answer!!!!! ssooo there do   special case check -> .env chack -> long q>a ... a>a check!!!
-                if matching_keys:
+                if matching_keys := self.get_matching_keys(label):
                     for key in matching_keys:
                         answer = self.users_information[key]
                         if answer in predefined_options:
@@ -1780,22 +1745,19 @@ class CompanyWorkflow():
                             print(f"Stored answer '{answer}' is not a valid option for '{label}'")
                 else:
                     print(f"No stored answers found for '{label}'")
-                    
+
+            elif matching_keys := self.try_finding_match(label):
+                for key in matching_keys:
+                    answer = self.users_information[key]
+                    # Input the answer into the form
+                    print(f"Entering '{answer}' for '{label}'")
             else:
-                matching_keys = self.try_finding_match(label)
-                if matching_keys:
-                    for key in matching_keys:
-                        answer = self.users_information[key]
-                        # Input the answer into the form
-                        print(f"Entering '{answer}' for '{label}'")
+                context = f"{self.users_summary} {label}"
+                if answer := self.generate_response(context):
+                    # Input the answer into the form
+                    print(f"Entering '{answer}' for '{label}'")
                 else:
-                    context = self.users_summary + " " + label
-                    answer = self.generate_response(context)
-                    if answer:
-                        # Input the answer into the form
-                        print(f"Entering '{answer}' for '{label}'")
-                    else:
-                        print(f"No stored answers found for '{label}'")
+                    print(f"No stored answers found for '{label}'")
     
     def try_finding_match(self, label):
         print("\ntry_finding_match()")
@@ -1832,9 +1794,9 @@ class CompanyWorkflow():
 
         max_length = len(input_ids[0]) + 100
         output = self.model.generate(input_ids, max_length=max_length, temperature=0.7)
-        response = self.tokenizer.decode(output[:, input_ids.shape[-1]:][0], skip_special_tokens=True)
-        
-        return response
+        return self.tokenizer.decode(
+            output[:, input_ids.shape[-1] :][0], skip_special_tokens=True
+        )
     
     #*Checklist/Radio just transitions Yes-True && No-False
     def bool_to_str(self, value):
@@ -1960,8 +1922,7 @@ class CompanyWorkflow():
         print(f"word = {word}")
         synonyms = []
         for syn in wordnet.synsets(word):
-            for lemma in syn.lemmas():
-                synonyms.append(lemma.name())
+            synonyms.extend(lemma.name() for lemma in syn.lemmas())
         print("synonyms = ", end="")
         print(synonyms)
         return synonyms
